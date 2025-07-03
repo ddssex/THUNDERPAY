@@ -1,0 +1,3449 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>THUNDER PAY</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+<style>
+    
+        /* Basic Reset & Body Styling */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5; /* Light grey background */
+            margin: 0;
+            color: #333;
+            padding: 15px;
+        }
+
+        /* Full-screen containers for different views */
+        .full-screen-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #3f51b5; /* Primary blue */
+            z-index: 1000;
+            flex-direction: column;
+            color: white;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            opacity: 1;
+            visibility: visible;
+            padding: 20px;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        .full-screen-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Splash Screen (THUNDER PAY animation) */
+        #splashScreen {
+            background-color: #3f51b5;
+            perspective: 1000px;
+        }
+
+        /* New animated text for splash screen */
+        .animated-thunder-pay {
+            font-size: 3.5em;
+            font-weight: bold;
+            letter-spacing: .08em;
+            white-space: nowrap;
+            margin: 0;
+            overflow: hidden;
+            max-width: 90%;
+        }
+
+        .animated-thunder-pay span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%) rotateX(90deg);
+            transform-origin: center bottom;
+            animation: letter-enter 0.8s forwards ease-out;
+            animation-fill-mode: backwards;
+            padding: 0 2px;
+        }
+
+        /* Animation delay for each letter */
+        .animated-thunder-pay span:nth-child(1) { animation-delay: 0.1s; }
+        .animated-thunder-pay span:nth-child(2) { animation-delay: 0.2s; }
+        .animated-thunder-pay span:nth-child(3) { animation-delay: 0.3s; }
+        .animated-thunder-pay span:nth-child(4) { animation-delay: 0.4s; }
+        .animated-thunder-pay span:nth-child(5) { animation-delay: 0.5s; }
+        .animated-thunder-pay span:nth-child(6) { animation-delay: 0.6s; }
+        .animated-thunder-pay span:nth-child(7) { animation-delay: 0.7s; }
+        /* Space */
+        /* removed PAY animation span 8 */ { animation-delay: 0.8s; }
+        /* removed PAY animation span 9 */ { animation-delay: 0.9s; }
+        /* removed PAY animation span 10 */ { animation-delay: 1.0s; }
+        /* removed PAY animation span 11 */ { animation-delay: 1.1s; }
+
+
+        @keyframes letter-enter {
+            0% {
+                opacity: 0;
+                transform: translateY(100%) rotateX(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        /* Login/Signup Screens */
+        #signupScreen, #loginScreen {
+            background-color: #2c3e50; /* Darker blue/grey for login/signup */
+            display: none;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #signupScreen h2, #loginScreen h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: white;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        #signupMobile, #signupPin, #confirmSignupPin,
+        #loginMobile, #loginPin {
+            width: 90%;
+            max-width: 280px;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            outline: none;
+            -webkit-appearance: none; /* Remove default styling on iOS */
+        }
+
+        #signupMessage, #loginMessage {
+            font-size: 1em;
+            color: #ffdddd; /* Light red for messages */
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        #signupButton, #loginButton {
+            background-color: #28a745; /* Green for action buttons */
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            touch-action: manipulation; /* Improves responsiveness on touch devices */
+            width: 90%;
+            max-width: 280px;
+        }
+
+        #signupButton:hover, #loginButton:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        #signupButton:active, #loginButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Main Wallet Container */
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 95%;
+            max-width: 450px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            display: none; /* Hidden by default, shown by JS */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Header (App Name) */
+        header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        header h1 {
+            color: #3f51b5; /* Primary blue for app name */
+            font-size: 2.5em;
+            margin: 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+            flex-grow: 1;
+            min-width: 150px;
+            text-align: left;
+        }
+
+        /* Profile icon in header */
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #007bff; /* Accent blue */
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            margin-left: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .profile-icon:hover {
+            background-color: #0056b3;
+        }
+
+        /* Balance Section */
+        .balance-section {
+            background-color: #e6f2ff; /* Lightest blue background */
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); /* Inner shadow for depth */
+        }
+
+        .balance-section p {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        #currentBalance {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #28a745; /* Green for balance */
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        /* Main Option Buttons (Send, Redeem, Receive) */
+        .main-options {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .option-button {
+            background-color: #007bff; /* Accent blue for buttons */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 110px;
+            height: 110px;
+            padding: 0;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+            text-decoration: none;
+            touch-action: manipulation;
+            text-align: center;
+        }
+
+        .option-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+        }
+        .option-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* CSS Icons */
+        .option-button .icon-css {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px; /* Space between icon and text */
+            position: relative;
+        }
+
+        /* Send Money Icon (Right Arrow) */
+        .icon-css.send-icon::before {
+            content: '';
+            width: 30px;
+            height: 5px;
+            background-color: white;
+            border-radius: 2px;
+            position: absolute;
+            left: 10px;
+        }
+        .icon-css.send-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid white;
+            position: absolute;
+            right: 0px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Thunder Code Icon (simple box) */
+        .icon-css.thunder-code-icon.box {
+             border: 5px solid white;
+             width: 45px;
+             height: 45px;
+             border-radius: 5px;
+             margin-bottom: 8px; /* Space between icon and text */
+        }
+        
+        /* New styling for Redeem button with emoji */
+        .option-button.redeem-emoji-btn {
+            font-size: 0.9em; /* Keep text size for "Gift" */
+        }
+        .option-button.redeem-emoji-btn .icon-emoji {
+            font-size: 2.8em; /* Make emoji larger */
+            margin-bottom: 2px; /* Less space if emoji is big */
+            line-height: 1; /* Adjust line height for better vertical centering */
+        }
+
+
+        /* Generic Action Section (for Send Money/Scan QR/Redeem) */
+        .action-section {
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background-color: #fcfcfc; /* Light background for sections */
+            display: none; /* Hidden by default */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-out;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .action-section h3 {
+            color: #007bff; /* Accent blue for headings */
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .input-group input[type="number"],
+        .input-group input[type="password"],
+        .input-group input[type="text"],
+        .input-group input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            -webkit-appearance: none;
+        }
+        .input-group input:focus {
+            border-color: #007bff; /* Accent blue on focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Light blue glow on focus */
+            outline: none;
+        }
+
+        button.main-action-button {
+            background-color: #007bff; /* Accent blue for main action buttons */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            touch-action: manipulation;
+        }
+
+        button.main-action-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button.main-action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+            color: #dc3545; /* Red for error messages */
+            font-size: 0.95em;
+        }
+
+        .generated-code-box {
+            background-color: #e6ffe6; /* Light green for success box */
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px dashed #28a745; /* Green dashed border */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease-out;
+            word-break: break-all;
+        }
+
+        .generated-code-box p {
+            margin: 5px 0;
+        }
+
+        .generated-code-box .redeem-code {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #007bff; /* Accent blue for code */
+            word-break: break-all;
+            padding: 5px 0;
+        }
+
+        #copyCodeBtn {
+            background-color: #6c757d; /* Grey for secondary buttons */
+        }
+
+        #copyCodeBtn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Loader Overlay */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            color: white;
+            font-size: 1.5em;
+            display: none;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+        .loader-overlay.active {
+            opacity: 1;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db; /* Blue loader */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Payment Status Overlay - Adapted for Google Pay like animation */
+        .payment-status-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            flex-direction: column;
+            color: white;
+            font-size: 2em;
+            text-align: center;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .payment-status-overlay.active {
+            opacity: 1;
+        }
+
+        /* Success Animation Container (Google Pay Style) */
+        .success-animation-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-animation-container .circle-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #28a745; /* Green for success circle */
+            transform: scale(0);
+            opacity: 0;
+            animation: expand-circle 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            animation-delay: 0.1s;
+        }
+
+        .checkmark-svg, .cross-svg {
+            width: 70%;
+            height: 70%;
+            stroke-width: 3;
+            stroke: #fff;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transform: scale(0);
+            animation: checkmark-scale 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            animation-delay: 0.7s;
+        }
+
+        .checkmark-svg path, .cross-svg path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: draw-checkmark 0.4s ease-out forwards;
+            animation-delay: 0.9s;
+        }
+
+        /* Specific styles for cross */
+        .cross-svg path.line1 {
+            animation: draw-cross-line1 0.4s ease-out forwards;
+            animation-delay: 0.9s;
+        }
+        .cross-svg path.line2 {
+            animation: draw-cross-line2 0.4s ease-out forwards;
+            animation-delay: 1.1s;
+        }
+
+
+        .status-message {
+            margin-top: 15px;
+            font-size: 1em;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            animation-delay: 1.2s;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+        
+        @keyframes expand-circle {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes checkmark-scale {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes draw-checkmark {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Failure Animation Styles */
+        .failure .success-animation-container .circle-bg {
+            background-color: #dc3545; /* Red for failure circle */
+        }
+        .failure .checkmark-svg {
+            display: none;
+        }
+        .failure .cross-svg {
+            display: block;
+            stroke: #fff;
+        }
+        .failure .checkmark-svg path, .failure .cross-svg path {
+            animation: none;
+        }
+
+        /* Cross individual line animations (re-trigger manually in JS) */
+        @keyframes draw-cross-line1 {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+        @keyframes draw-cross-line2 {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+
+        /* Custom Toast/Message Box */
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            z-index: 1002;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            white-space: nowrap;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+        .toast-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Redeem Options Section - Removed as per new requirement, replaced by googlePlayRedeemSection */
+        #redeemOptions {
+            display: none; /* Keep hidden, as it's no longer the direct option */
+        }
+
+        /* NEW: Google Play Redeem Section */
+        #googlePlayRedeemSection {
+            background-color: #fcfcfc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: none;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+            text-align: center;
+        }
+
+        #googlePlayRedeemSection h3 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .redeem-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+
+        .redeem-card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .redeem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .redeem-card .card-icon {
+            font-size: 3em; /* Larger emoji */
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .redeem-card .card-price {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #28a745; /* Green for price */
+            margin-bottom: 10px;
+        }
+        
+        .redeem-card button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .redeem-card button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Profile Section Styling */
+        #profileSection .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        #profileSection .info-row:last-of-type {
+            border-bottom: none;
+        }
+        #profileSection .info-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+        #profileSection .info-value {
+            color: #555;
+            word-break: break-all;
+            text-align: right;
+            font-size: 0.95em;
+            flex-grow: 1;
+            min-width: 100px;
+        }
+
+        /* Change PIN form */
+        #changePinForm {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #ddd;
+        }
+        #changePinSection h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        /* Transaction History Section */
+        #transactionHistorySection ul {
+            list-style: none;
+            padding: 0;
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        #transactionHistorySection li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        #transactionHistorySection li:last-child {
+            border-bottom: none;
+        }
+        #transactionHistorySection .transaction-info {
+            text-align: left;
+            flex-grow: 1;
+            min-width: 150px;
+        }
+        #transactionHistorySection .transaction-detail-line {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        #transactionHistorySection .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        #transactionHistorySection .transaction-type {
+            font-weight: bold;
+            font-size: 1em;
+        }
+        #transactionHistorySection .transaction-type.sent {
+            color: #dc3545; /* Red for sent */
+        }
+        #transactionHistorySection .transaction-type.received {
+            color: #28a745; /* Green for received */
+        }
+        #transactionHistorySection .transaction-type.generated {
+            color: #ffc107; /* Orange/Yellow for generated */
+        }
+        #transactionHistorySection .transaction-type.purchased { /* New class for purchased gift cards */
+            color: #8A2BE2; /* Purple for purchased */
+        }
+        #transactionHistorySection .transaction-type.redeemed {
+            color: #17a2b8; /* Teal for redeemed */
+        }
+        #transactionHistorySection .transaction-date {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 3px;
+        }
+        #noTransactionsMessage {
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        /* Show Thunder Code Section */
+        #showThunderCodeSection {
+            text-align: center;
+        }
+
+        #showThunderCodeSection .thunder-code-display {
+            background-color: #f0f8ff; /* Light blue background */
+            border: 2px dashed #007bff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #showThunderCodeSection .thunder-code-display p {
+            margin: 5px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        #showThunderCodeSection .thunder-code-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #3f51b5; /* Primary blue for code */
+            word-break: break-all;
+        }
+
+
+        /* --- Responsive adjustments (Media Queries) --- */
+
+        /* Tablets and larger phones */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .animated-thunder-pay {
+                font-size: 3em;
+            }
+            #signupScreen h2, #loginScreen h2 {
+                font-size: 1.8em;
+            }
+            #signupMobile, #signupPin, #confirmSignupPin, #signupButton,
+            #loginMobile, #loginPin, #loginButton {
+                font-size: 1.1em;
+                padding: 12px;
+                max-width: 300px;
+            }
+            .container {
+                padding: 25px;
+                width: 98%;
+            }
+            header h1 {
+                font-size: 2.2em;
+            }
+            #currentBalance {
+                font-size: 2.5em;
+            }
+            .option-button {
+                width: 100px;
+                height: 100px;
+                font-size: 0.8em;
+            }
+            /* Adjust size for icons on smaller screens */
+            .option-button .icon-css {
+                width: 45px;
+                height: 45px;
+            }
+             .option-button.redeem-emoji-btn .icon-emoji {
+                font-size: 2.5em; /* Adjust emoji size for smaller screens */
+             }
+
+            .redeem-card .card-icon {
+                font-size: 2.5em; /* Adjust emoji size for smaller screens */
+            }
+            .redeem-card .card-price {
+                font-size: 1.5em;
+            }
+            .redeem-card button {
+                font-size: 0.9em;
+            }
+
+
+            .action-section h3 {
+                font-size: 1.3em;
+            }
+            .input-group label {
+                font-size: 0.9em;
+            }
+            button.main-action-button {
+                font-size: 1em;
+                padding: 10px 18px;
+                max-width: 280px;
+            }
+            .loader-overlay, .payment-status-overlay {
+                font-size: 1.3em;
+            }
+            .success-animation-container {
+                width: 100px;
+                height: 100px;
+            }
+            .checkmark-svg, .cross-svg {
+                stroke-width: 3.5;
+            }
+            .redeem-code {
+                font-size: 1.4em;
+            }
+            #showThunderCodeSection .thunder-code-value {
+                font-size: 1.5em;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .animated-thunder-pay {
+                font-size: 2.5em;
+                letter-spacing: .05em;
+            }
+            #signupScreen h2, #loginScreen h2 {
+                font-size: 1.6em;
+            }
+            #signupMobile, #signupPin, #confirmSignupPin, #signupButton,
+            #loginMobile, #loginPin, #loginButton {
+                font-size: 1em;
+                padding: 10px;
+                max-width: 280px;
+            }
+            .input-group label {
+                font-size: 0.85em;
+            }
+            .container {
+                padding: 20px;
+                width: 100%;
+                border-radius: 10px;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            header h1 {
+                font-size: 1.8em;
+                width: 100%;
+                text-align: center;
+            }
+            .profile-icon {
+                margin: 10px auto 0;
+            }
+            #currentBalance {
+                font-size: 2em;
+            }
+            .option-button {
+                width: 80px;
+                height: 80px;
+                font-size: 0.7em;
+                margin-bottom: 8px;
+            }
+            .option-button .icon-css {
+                width: 35px;
+                height: 35px;
+                margin-bottom: 4px; /* Smaller space for icons in smaller buttons */
+            }
+            /* Adjustments for specific CSS icons on smaller screens */
+            .icon-css.send-icon::before { width: 20px; left: 8px; }
+            .icon-css.send-icon::after { border-left-width: 10px; }
+            .icon-css.thunder-code-icon.box { border-width: 3px; width: 30px; height: 30px; }
+            
+            .option-button.redeem-emoji-btn .icon-emoji {
+                font-size: 2.2em; /* Adjust emoji size for smaller screens */
+                margin-bottom: 0px; /* Reduce space even more */
+            }
+
+            .redeem-card .card-icon {
+                font-size: 2em; /* Adjust emoji size for mobile */
+            }
+            .redeem-card .card-price {
+                font-size: 1.4em;
+            }
+            .redeem-card button {
+                font-size: 0.85em;
+                padding: 6px 10px;
+            }
+
+            .main-options {
+                gap: 8px;
+                justify-content: center;
+            }
+            .action-section {
+                padding: 15px;
+            }
+            .action-section h3 {
+                font-size: 1.2em;
+            }
+            .action-section input,
+            button.main-action-button {
+                padding: 10px;
+                font-size: 0.95em;
+                max-width: 250px;
+            }
+            .loader-overlay, .payment-status-overlay {
+                font-size: 1.1em;
+            }
+            .success-animation-container {
+                width: 80px;
+                height: 80px;
+            }
+            .checkmark-svg, .cross-svg {
+                stroke-width: 3;
+            }
+            .redeem-code {
+                font-size: 1.2em;
+            }
+            .toast-message {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            #profileSection .info-row,
+            #transactionHistorySection li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+                text-align: left;
+            }
+            #profileSection .info-value,
+            #transactionHistorySection .transaction-amount {
+                text-align: left;
+                width: 100%;
+                margin-left: 0;
+            }
+            #showThunderCodeSection .thunder-code-value {
+                font-size: 1.3em;
+            }
+        }
+    
+    </style>
+<style>
+/* Responsive styling */
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    overflow-x: hidden;
+}
+
+.container, .main, .content {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 600px) {
+    h1, h2, h3 {
+        font-size: 1.2em;
+    }
+    .voucher-card {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+}
+</style></head>
+<body>
+<div class="full-screen-container" id="splashScreen">
+<h1 class="animated-thunder-pay">
+<span>T</span><span>H</span><span>U</span><span>N</span><span>D</span><span>E</span><span>R</span>
+</h1>
+</div>
+<div class="full-screen-container hidden" id="signupScreen">
+<h2>Create Your Account</h2>
+<div class="input-group">
+<label for="signupMobile">Mobile Number</label>
+<input id="signupMobile" inputmode="numeric" maxlength="10" placeholder="e.g., 9876543210" type="tel"/>
+</div>
+<div class="input-group">
+<label for="signupPin">Create 4-digit PIN</label>
+<input id="signupPin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<div class="input-group">
+<label for="confirmSignupPin">Confirm PIN</label>
+<input id="confirmSignupPin" inputmode="numeric" maxlength="4" placeholder="Confirm your 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="signupMessage"></p>
+<button class="main-action-button" id="signupButton">Sign Up</button>
+<p style="color: white; margin-top: 20px; font-size: 0.9em;">Already have an account? <a href="#" id="goToLogin" style="color: #4CAF50; text-decoration: none; font-weight: bold;">Log In</a></p>
+</div>
+<div class="full-screen-container hidden" id="loginScreen">
+<h2>Log In to THUNDER PAY</h2>
+<div class="input-group">
+<label for="loginMobile">Mobile Number</label>
+<input id="loginMobile" inputmode="numeric" maxlength="10" placeholder="e.g., 9876543210" type="tel"/>
+</div>
+<div class="input-group">
+<label for="loginPin">PIN</label>
+<input id="loginPin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="loginMessage"></p>
+<button class="main-action-button" id="loginButton">Log In</button>
+<p style="color: white; margin-top: 20px; font-size: 0.9em;">Don't have an account? <a href="#" id="goToSignup" style="color: #4CAF50; text-decoration: none; font-weight: bold;">Sign Up</a></p>
+</div>
+<div class="container" id="mainWallet">
+<header>
+<h1>THUNDER PAY</h1>
+<div class="profile-icon" id="profileIcon">⚙️</div> </header>
+<div class="balance-section">
+<p>Current Balance</p>
+<p id="currentBalance">₹1000.00</p>
+</div>
+<div class="main-options">
+<a class="option-button" href="#" id="sendMoneyBtn">
+<div class="icon-css send-icon"></div>
+<span>Send</span>
+</a>
+<a class="option-button redeem-emoji-btn" href="#" id="redeemCodeBtn">
+<div class="icon-emoji">🎁</div>
+<span>Gift</span>
+</a>
+<a class="option-button" href="#" id="showThunderCodeBtn">
+<div class="icon-css thunder-code-icon box"></div>
+<span>Receive</span>
+</a>
+</div>
+<div class="action-section" id="sendMoneySection">
+<h3>Send Money</h3>
+<div class="input-group">
+<label for="sendAmount">Amount (₹)</label>
+<input id="sendAmount" placeholder="e.g., 500" type="number"/>
+</div>
+<div class="input-group">
+<label for="sendRecipientCode">Recipient THUNDER Code</label>
+<input id="sendRecipientCode" placeholder="e.g., THUNDER@1234" type="text"/>
+</div>
+<div class="input-group">
+<label for="sendPin">PIN</label>
+<input id="sendPin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="sendMessage"></p>
+<button class="main-action-button" id="confirmSendBtn">Confirm Send</button>
+<button class="main-action-button" onclick="hideAllActionSections()">Back to Wallet</button>
+</div>
+<div class="action-section" id="googlePlayRedeemSection">
+<h3>Google Play Gift Cards</h3>
+<h3>Gift Card Store</h3>
+<div class="redeem-card-grid">
+<!-- Google Play -->
+<div class="redeem-card" style="background-color:#e8f0fe; border-color:#c3dafe;">
+<div class="card-icon" style="color:#1a73e8;">▶️</div>
+<div class="card-price">₹10</div>
+<button class="purchase-gift-card-btn" data-brand="Google Play" data-value="10">Withdraw</button>
+</div>
+<div class="redeem-card" style="background-color:#e8f0fe; border-color:#c3dafe;">
+<div class="card-icon" style="color:#1a73e8;">▶️</div>
+<div class="card-price">₹50</div>
+<button class="purchase-gift-card-btn" data-brand="Google Play" data-value="50">Withdraw</button>
+</div>
+<!-- Amazon Pay -->
+<div class="redeem-card" style="background-color:#fff7e6; border-color:#ffd699;">
+<div class="card-icon" style="color:#ff9900;">🛒</div>
+<div class="card-price">₹100</div>
+<button class="purchase-gift-card-btn" data-brand="Amazon Pay" data-value="100">Withdraw</button>
+</div>
+<div class="redeem-card" style="background-color:#fff7e6; border-color:#ffd699;">
+<div class="card-icon" style="color:#ff9900;">🛒</div>
+<div class="card-price">₹200</div>
+<button class="purchase-gift-card-btn" data-brand="Amazon Pay" data-value="200">Withdraw</button>
+</div>
+<!-- Paytm -->
+<div class="redeem-card" style="background-color:#e6f7ff; border-color:#b3ecff;">
+<div class="card-icon" style="color:#00baf2;">💳</div>
+<div class="card-price">₹500</div>
+<button class="purchase-gift-card-btn" data-brand="Paytm" data-value="500">Withdraw</button>
+</div>
+<div class="redeem-card" style="background-color:#e6f7ff; border-color:#b3ecff;">
+<div class="card-icon" style="color:#00baf2;">💳</div>
+<div class="card-price">₹1000</div>
+<button class="purchase-gift-card-btn" data-brand="Paytm" data-value="1000">Withdraw</button>
+</div>
+</div>
+</div>
+<p class="message" id="googlePlayRedeemMessage"></p>
+<div class="input-group" id="googlePlayPinInputGroup" style="display:none;">
+<label for="googlePlayPin">PIN</label>
+<input id="googlePlayPin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<button class="main-action-button" id="confirmGiftCardPurchaseBtn" style="display:none;">Confirm Purchase</button>
+<div class="generated-code-box" id="purchasedGiftCodeBox" style="display: none;">
+<p>Your Google Play Redeem Code:</p>
+<p class="redeem-code" id="displayPurchasedGiftCode"></p>
+<button class="main-action-button" id="copyGiftCodeBtn">Copy Code</button>
+</div>
+<button class="main-action-button" onclick="hideAllActionSections()">Back to Wallet</button>
+</div>
+<div class="action-section" id="generateCodeSection">
+<h3>Generate Redeem Code</h3>
+<div class="input-group">
+<label for="generateAmount">Amount (₹)</label>
+<input id="generateAmount" placeholder="e.g., 200" type="number"/>
+</div>
+<div class="input-group">
+<label for="generatePin">PIN</label>
+<input id="generatePin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="generateMessage"></p>
+<button class="main-action-button" id="generateCodeBtn">Generate Code</button>
+<div class="generated-code-box" id="generatedCodeBox" style="display: none;">
+<p>Your Redeem Code:</p>
+<p class="redeem-code" id="displayGeneratedCode"></p>
+<button class="main-action-button" id="copyCodeBtn">Copy Code</button>
+</div>
+<button class="main-action-button" onclick="hideAllActionSections()" style="margin-top: 15px;">Back to Wallet</button>
+</div>
+<div class="action-section" id="redeemExistingCodeSection">
+<h3>Redeem Existing Code</h3>
+<div class="input-group">
+<label for="redeemCodeInput">Enter Redeem Code</label>
+<input id="redeemCodeInput" placeholder="e.g., THUNDER-123456-7890" type="text"/>
+</div>
+<div class="input-group">
+<label for="redeemExistingPin">PIN</label>
+<input id="redeemExistingPin" inputmode="numeric" maxlength="4" placeholder="Enter your 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="redeemExistingMessage"></p>
+<button class="main-action-button" id="confirmRedeemBtn">Redeem Code</button>
+<button class="main-action-button" onclick="hideAllActionSections()" style="margin-top: 15px;">Back to Wallet</button>
+</div>
+<div class="action-section" id="showThunderCodeSection">
+<h3>My THUNDER Code</h3>
+<div class="thunder-code-display">
+<p>Your Mobile Number:</p>
+<p class="thunder-code-value" id="displayUserMobile"></p>
+<p>Your THUNDER Code:</p>
+<p class="thunder-code-value" id="displayUserThunderCode"></p>
+</div>
+<button class="main-action-button" id="copyThunderCodeBtn">Copy THUNDER Code</button>
+<button class="main-action-button" onclick="hideAllActionSections()">Back to Wallet</button>
+</div>
+<div class="action-section" id="profileSection">
+<h3>My Profile</h3>
+<div class="info-row">
+<span class="info-label">Mobile Number:</span>
+<span class="info-value" id="profileMobile"></span>
+</div>
+<div class="info-row">
+<span class="info-label">THUNDER Code:</span>
+<span class="info-value" id="profileThunderCode"></span>
+</div>
+<button class="main-action-button" id="showChangePinBtn">Change PIN</button>
+<button class="main-action-button" id="showTransactionHistoryBtn">Transaction History</button>
+<button class="main-action-button" id="logoutBtn" style="background-color: #dc3545;">Logout</button>
+<button class="main-action-button" onclick="hideAllActionSections()">Back to Wallet</button>
+</div>
+<div class="action-section" id="changePinSection">
+<h3>Change PIN</h3>
+<div class="input-group">
+<label for="currentPin">Current PIN</label>
+<input id="currentPin" inputmode="numeric" maxlength="4" placeholder="Enter current 4-digit PIN" type="password"/>
+</div>
+<div class="input-group">
+<label for="newPin">New PIN</label>
+<input id="newPin" inputmode="numeric" maxlength="4" placeholder="Enter new 4-digit PIN" type="password"/>
+</div>
+<div class="input-group">
+<label for="confirmNewPin">Confirm New PIN</label>
+<input id="confirmNewPin" inputmode="numeric" maxlength="4" placeholder="Confirm new 4-digit PIN" type="password"/>
+</div>
+<p class="message" id="changePinMessage"></p>
+<button class="main-action-button" id="confirmChangePinBtn">Confirm Change</button>
+<button class="main-action-button" onclick="showActionSection(profileSection)">Back to Profile</button>
+</div>
+<div class="action-section" id="transactionHistorySection">
+<h3>Transaction History</h3>
+<ul id="transactionList">
+</ul>
+<p id="noTransactionsMessage" style="display: none;">No transactions yet.</p>
+<button class="main-action-button" onclick="showActionSection(profileSection)">Back to Profile</button>
+</div>
+
+<div class="loader-overlay" id="loaderOverlay">
+<div class="loader"></div>
+<p id="loaderMessage">Processing...</p>
+</div>
+<div class="payment-status-overlay" id="paymentStatusOverlay">
+<div class="success-animation-container">
+<div class="circle-bg"></div>
+<svg class="checkmark-svg" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+<path d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+</svg>
+<svg class="cross-svg" style="display: none;" viewbox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+<path class="line1" d="M16 16 36 36"></path>
+<path class="line2" d="M36 16 16 36"></path>
+</svg>
+</div>
+<p class="status-message" id="paymentStatusMessage"></p>
+</div>
+<div class="toast-message" id="toastMessage">
+        This is a toast message!
+    </div>
+<script>
+        // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        // Removed patternScreen as it's replaced by login/signup
+
+        // Login/Signup Elements
+        const signupScreen = document.getElementById('signupScreen');
+        const signupMobileInput = document.getElementById('signupMobile');
+        const signupPinInput = document.getElementById('signupPin');
+        const confirmSignupPinInput = document.getElementById('confirmSignupPin');
+        const signupMessage = document.getElementById('signupMessage');
+        const signupButton = document.getElementById('signupButton');
+        const goToLoginLink = document.getElementById('goToLogin');
+
+        const loginScreen = document.getElementById('loginScreen');
+        const loginMobileInput = document.getElementById('loginMobile');
+        const loginPinInput = document.getElementById('loginPin');
+        const loginMessage = document.getElementById('loginMessage');
+        const loginButton = document.getElementById('loginButton');
+        const goToSignupLink = document.getElementById('goToSignup');
+
+        const mainWallet = document.getElementById('mainWallet');
+        const currentBalanceDisplay = document.getElementById('currentBalance');
+        const profileIcon = document.getElementById('profileIcon');
+
+        const sendMoneyBtn = document.getElementById('sendMoneyBtn');
+        const redeemCodeBtn = document.getElementById('redeemCodeBtn');
+        const showThunderCodeBtn = document.getElementById('showThunderCodeBtn'); // Changed from scanQrBtn
+
+        const sendMoneySection = document.getElementById('sendMoneySection');
+        const sendAmountInput = document.getElementById('sendAmount');
+        const sendRecipientCodeInput = document.getElementById('sendRecipientCode');
+        const sendPinInput = document.getElementById('sendPin');
+        const sendMessage = document.getElementById('sendMessage');
+        const confirmSendBtn = document.getElementById('confirmSendBtn');
+
+// Pre-fill and lock "THUNDER@" in the input
+sendRecipientCodeInput.value = "THUNDER@";
+sendRecipientCodeInput.addEventListener("input", () => {
+    if (!sendRecipientCodeInput.value.startsWith("THUNDER@")) {
+        sendRecipientCodeInput.value = "THUNDER@";
+    } else {
+        const suffix = sendRecipientCodeInput.value.slice(8).replace(/[^0-9]/g, "").slice(0, 4);
+        sendRecipientCodeInput.value = "THUNDER@" + suffix;
+    }
+});
+
+
+        // Redeem sections and elements - UPDATED
+        // const redeemOptions = document.getElementById('redeemOptions'); // Removed
+        // const showGenerateCodeBtn = document.getElementById('showGenerateCodeBtn'); // Removed direct access
+        // const showRedeemExistingCodeBtn = document.getElementById('showRedeemExistingCodeBtn'); // Removed direct access
+
+        const googlePlayRedeemSection = document.getElementById('googlePlayRedeemSection'); // New
+        const googlePlayRedeemMessage = document.getElementById('googlePlayRedeemMessage'); // New
+        const googlePlayPinInputGroup = document.getElementById('googlePlayPinInputGroup'); // New
+        const googlePlayPinInput = document.getElementById('googlePlayPin'); // New
+        const confirmGiftCardPurchaseBtn = document.getElementById('confirmGiftCardPurchaseBtn'); // New
+        const purchasedGiftCodeBox = document.getElementById('purchasedGiftCodeBox'); // New
+        const displayPurchasedGiftCode = document.getElementById('displayPurchasedGiftCode'); // New
+        const copyGiftCodeBtn = document.getElementById('copyGiftCodeBtn'); // New
+
+        const generateCodeSection = document.getElementById('generateCodeSection');
+        const generateAmountInput = document.getElementById('generateAmount');
+        const generatePinInput = document.getElementById('generatePin');
+        const generateMessage = document.getElementById('generateMessage');
+        const generateCodeBtn = document.getElementById('generateCodeBtn');
+        const generatedCodeBox = document.getElementById('generatedCodeBox');
+        const displayGeneratedCode = document.getElementById('displayGeneratedCode');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+
+        const redeemExistingCodeSection = document.getElementById('redeemExistingCodeSection');
+        const redeemCodeInput = document.getElementById('redeemCodeInput');
+        const redeemExistingPinInput = document.getElementById('redeemExistingPin');
+        const redeemExistingMessage = document.getElementById('redeemExistingMessage');
+        const confirmRedeemBtn = document.getElementById('confirmRedeemBtn');
+
+        const showThunderCodeSection = document.getElementById('showThunderCodeSection'); // New section
+        const displayUserMobile = document.getElementById('displayUserMobile');
+        const displayUserThunderCode = document.getElementById('displayUserThunderCode');
+        const copyThunderCodeBtn = document.getElementById('copyThunderCodeBtn');
+
+        // Profile Section Elements
+        const profileSection = document.getElementById('profileSection');
+        const profileMobile = document.getElementById('profileMobile');
+        const profileThunderCode = document.getElementById('profileThunderCode');
+        const showChangePinBtn = document.getElementById('showChangePinBtn');
+        const showTransactionHistoryBtn = document.getElementById('showTransactionHistoryBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Change PIN Section Elements
+        const changePinSection = document.getElementById('changePinSection');
+        const currentPinInput = document.getElementById('currentPin');
+        const newPinInput = document.getElementById('newPin');
+        const confirmNewPinInput = document.getElementById('confirmNewPin');
+        const changePinMessage = document.getElementById('changePinMessage');
+        const confirmChangePinBtn = document.getElementById('confirmChangePinBtn');
+
+        // Transaction History Section Elements
+        const transactionHistorySection = document.getElementById('transactionHistorySection');
+        const transactionList = document.getElementById('transactionList');
+        const noTransactionsMessage = document.getElementById('noTransactionsMessage');
+
+
+        const loaderOverlay = document.getElementById('loaderOverlay');
+        const loaderMessage = document.getElementById('loaderMessage');
+        const paymentStatusOverlay = document.getElementById('paymentStatusOverlay');
+        const paymentStatusMessage = document.getElementById('paymentStatusMessage');
+        const successCheckmark = document.querySelector('.checkmark-svg');
+        const crossMark = document.querySelector('.cross-svg');
+        const successCircle = document.querySelector('.success-animation-container .circle-bg');
+        
+        const toastMessageElement = document.getElementById('toastMessage');
+
+        // App State
+        let currentBalance = 0.00;
+        let loggedInUserMobile = null;
+        let selectedGiftCardAmount = 0; // To store the amount chosen for purchase
+
+        // Tone.js for sounds
+        const synth = new Tone.Synth().toDestination();
+
+        // --- Utility Functions ---
+
+        function getUsers() {
+            const users = localStorage.getItem('thunderPayUsers');
+            try {
+                const parsedUsers = users ? JSON.parse(users) : {};
+                for (const mobile in parsedUsers) {
+                    if (!parsedUsers[mobile].transactions) {
+                        parsedUsers[mobile].transactions = [];
+                    }
+                    if (!parsedUsers[mobile].thunderCode) {
+                        parsedUsers[mobile].thunderCode = generateThunderCode(mobile);
+                    }
+                }
+                return parsedUsers;
+            } catch (e) {
+                console.error("Error parsing users from localStorage:", e);
+                return {};
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('thunderPayUsers', JSON.stringify(users));
+        }
+
+        function getRedeemCodes() {
+            const codes = localStorage.getItem('thunderPayRedeemCodes');
+            try {
+                return codes ? JSON.parse(codes) : {};
+            } catch (e) {
+                console.error("Error parsing redeem codes from localStorage:", e);
+                return {};
+            }
+        }
+
+        function saveRedeemCodes(codes) {
+            localStorage.setItem('thunderPayRedeemCodes', JSON.stringify(codes));
+        }
+
+        // NEW: Function to get purchased gift cards
+        function getPurchasedGiftCards() {
+            const cards = localStorage.getItem('thunderPayPurchasedGiftCards');
+            try {
+                return cards ? JSON.parse(cards) : {};
+            } catch (e) {
+                console.error("Error parsing purchased gift cards from localStorage:", e);
+                return {};
+            }
+        }
+
+        // NEW: Function to save purchased gift cards
+        function savePurchasedGiftCards(cards) {
+            localStorage.setItem('thunderPayPurchasedGiftCards', JSON.stringify(cards));
+        }
+
+
+        function generateThunderCode(mobileNumber) {
+            const last4 = mobileNumber.slice(-4);
+            return `THUNDER@${last4}`;
+        }
+
+        function playSound(type) {
+            if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+                Tone.start();
+            }
+
+            if (type === 'success') {
+                synth.triggerAttackRelease('C5', '8n');
+                setTimeout(() => synth.triggerAttackRelease('E5', '8n'), 100);
+                setTimeout(() => synth.triggerAttackRelease('G5', '8n'), 200);
+            } else if (type === 'failure') {
+                synth.triggerAttackRelease('C4', '8n');
+                setTimeout(() => synth.triggerAttackRelease('A3', '8n'), 100);
+            } else if (type === 'click') {
+                synth.triggerAttackRelease('C4', '16n');
+            }
+        }
+
+        function updateBalance() {
+            currentBalanceDisplay.textContent = `₹${currentBalance.toFixed(2)}`;
+        }
+
+        // Updated Function to add a transaction record with more details
+        function addTransaction(mobile, type, amount, fromInfo = null, toInfo = null, code = null) {
+            const users = getUsers();
+            if (users[mobile]) {
+                const transaction = {
+                    date: new Date().toLocaleString(),
+                    type: type, // 'sent', 'received', 'generated_code', 'redeemed_code', 'purchased_gift_card'
+                    amount: amount,
+                    from: fromInfo, // Who initiated or provided the money/code
+                    to: toInfo,     // Who received the money/code
+                    code: code      // For generated/redeemed/purchased codes
+                };
+                if (!users[mobile].transactions) {
+                    users[mobile].transactions = [];
+                }
+                users[mobile].transactions.unshift(transaction);
+                saveUsers(users);
+            }
+        }
+
+
+        function showLoader(message = "Processing...") {
+            loaderMessage.textContent = message;
+            loaderOverlay.style.display = 'flex';
+            setTimeout(() => loaderOverlay.classList.add('active'), 10);
+        }
+
+        function hideLoader() {
+            loaderOverlay.classList.remove('active');
+            setTimeout(() => {
+                loaderOverlay.style.display = 'none';
+            }, 300);
+        }
+
+        function showPaymentStatus(isSuccess, message) {
+            paymentStatusOverlay.classList.remove('failure');
+            successCheckmark.style.display = 'none';
+            crossMark.style.display = 'none';
+
+            const checkmarkPath = successCheckmark.querySelector('path');
+            const crossLine1 = crossMark.querySelector('.line1');
+            const crossLine2 = crossMark.querySelector('.line2');
+
+            // Re-create paths to re-trigger animations
+            const newCheckmarkPath = checkmarkPath.cloneNode();
+            checkmarkPath.parentNode.replaceChild(newCheckmarkPath, checkmarkPath);
+
+            const newCrossLine1 = crossLine1.cloneNode();
+            crossLine1.parentNode.replaceChild(newCrossLine1, crossLine1);
+            const newCrossLine2 = crossLine2.cloneNode();
+            crossLine2.parentNode.replaceChild(newCrossLine2, crossLine2);
+            
+            successCircle.style.animation = 'none';
+            void successCircle.offsetWidth; // Trigger reflow
+            successCircle.style.animation = null; // Re-enable animation
+
+            if (isSuccess) {
+                successCheckmark.style.display = 'block';
+                playSound('success');
+            } else {
+            showSignupScreen();
+                paymentStatusOverlay.classList.add('failure');
+                crossMark.style.display = 'block';
+                playSound('failure');
+            }
+            paymentStatusMessage.textContent = message;
+            
+            paymentStatusOverlay.style.display = 'flex';
+            setTimeout(() => paymentStatusOverlay.classList.add('active'), 10);
+        }
+
+        function hidePaymentStatus() {
+            paymentStatusOverlay.classList.remove('active');
+            setTimeout(() => {
+                paymentStatusOverlay.style.display = 'none';
+                if (!mainWallet.classList.contains('active')) {
+                    showMainWallet();
+                }
+            }, 300);
+        }
+
+        function showToast(message, duration = 3000) {
+            toastMessageElement.textContent = message;
+            toastMessageElement.classList.add('show');
+            setTimeout(() => {
+                toastMessageElement.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Screen & Section Management ---
+
+        function showSignupScreen() {
+            splashScreen.classList.add('hidden');
+            loginScreen.classList.add('hidden');
+            signupScreen.style.display = 'flex';
+            setTimeout(() => signupScreen.classList.remove('hidden'), 500);
+            signupMobileInput.focus();
+        }
+
+        function showLoginScreen() {
+            splashScreen.classList.add('hidden');
+            signupScreen.classList.add('hidden');
+            loginScreen.style.display = 'flex';
+            setTimeout(() => loginScreen.classList.remove('hidden'), 500);
+            loginMobileInput.focus();
+        }
+
+        function showMainWallet() {
+            signupScreen.classList.add('hidden');
+            loginScreen.classList.add('hidden');
+            hideAllActionSections(); 
+
+            setTimeout(() => {
+                signupScreen.style.display = 'none';
+                loginScreen.style.display = 'none';
+
+                mainWallet.style.display = 'block';
+                setTimeout(() => mainWallet.classList.add('active'), 10);
+            }, 500);
+        }
+
+        function hideAllActionSections() {
+            document.querySelectorAll('.action-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            sendMessage.textContent = '';
+            sendAmountInput.value = '';
+            sendRecipientCodeInput.value = '';
+            sendPinInput.value = '';
+
+            // Reset Google Play Redeem Section
+            googlePlayRedeemMessage.textContent = '';
+            googlePlayPinInput.value = '';
+            googlePlayPinInputGroup.style.display = 'none';
+            confirmGiftCardPurchaseBtn.style.display = 'none';
+            purchasedGiftCodeBox.style.display = 'none';
+            selectedGiftCardAmount = 0;
+
+
+            generateMessage.textContent = '';
+            generateAmountInput.value = '';
+            generatePinInput.value = '';
+            generatedCodeBox.style.display = 'none';
+
+            redeemExistingMessage.textContent = '';
+            redeemCodeInput.value = '';
+            redeemExistingPinInput.value = '';
+
+            changePinMessage.textContent = '';
+            currentPinInput.value = '';
+            newPinInput.value = '';
+            confirmNewPinInput.value = '';
+        }
+
+        function showActionSection(section) {
+            hideAllActionSections();
+            section.style.display = 'block';
+        }
+
+        // --- Event Listeners ---
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const users = getUsers();
+                // Use localStorage for long-term persistence
+                const lastLoggedInMobile = localStorage.getItem('lastLoggedInUser'); 
+                // Auto-login disabled
+    if (false && lastLoggedInMobile && users[lastLoggedInMobile]) {
+                    loggedInUserMobile = lastLoggedInMobile;
+                    currentBalance = users[loggedInUserMobile].balance;
+                    updateBalance();
+                    showMainWallet();
+                } else if (Object.keys(users).length > 0) {
+            showLoginScreen();
+                    showLoginScreen();
+                } else {
+            showSignupScreen();
+                    showSignupScreen();
+                }
+            }, 2500);
+        });
+
+
+        // Login/Signup transitions
+        goToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            signupScreen.classList.add('hidden');
+            setTimeout(() => showLoginScreen(), 500);
+            signupMobileInput.value = '';
+            signupPinInput.value = '';
+            confirmSignupPinInput.value = '';
+            signupMessage.textContent = '';
+        });
+
+        goToSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            loginScreen.classList.add('hidden');
+            setTimeout(() => showSignupScreen(), 500);
+            loginMobileInput.value = '';
+            loginPinInput.value = '';
+            loginMessage.textContent = '';
+        });
+
+
+        // Signup Logic
+        signupButton.addEventListener('click', () => {
+            playSound('click');
+            const mobile = signupMobileInput.value.trim();
+            const pin = signupPinInput.value;
+            const confirmPin = confirmSignupPinInput.value;
+
+            if (!/^\d{10}$/.test(mobile)) {
+                signupMessage.textContent = 'Please enter a valid 10-digit mobile number.';
+                return;
+            }
+            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                signupMessage.textContent = 'PIN must be a 4-digit number.';
+                return;
+            }
+            if (pin !== confirmPin) {
+                signupMessage.textContent = 'PINs do not match.';
+                return;
+            }
+
+            let users = getUsers();
+            if (users[mobile]) {
+                signupMessage.textContent = 'Account with this mobile number already exists. Please login.';
+                return;
+            }
+
+            const thunderCode = generateThunderCode(mobile);
+            users[mobile] = { pin: pin, balance: 1000.00, thunderCode: thunderCode, transactions: [] };
+            saveUsers(users);
+            loggedInUserMobile = mobile;
+            localStorage.setItem('lastLoggedInUser', mobile); // Save login state to localStorage
+            currentBalance = users[loggedInUserMobile].balance;
+            updateBalance();
+
+            showLoader('Creating account...');
+            setTimeout(() => {
+                hideLoader();
+                showPaymentStatus(true, `Account created successfully! Your THUNDER Code is ${thunderCode}`);
+            }, 1500);
+        });
+
+        // Login Logic
+        loginButton.addEventListener('click', () => {
+            playSound('click');
+            const mobile = loginMobileInput.value.trim();
+            const pin = loginPinInput.value;
+
+            let users = getUsers();
+            const user = users[mobile];
+
+            if (!user) {
+                loginMessage.textContent = 'No account found with this mobile number. Please sign up.';
+                return;
+            }
+
+            if (user.pin !== pin) {
+                loginMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+
+            loggedInUserMobile = mobile;
+            localStorage.setItem('lastLoggedInUser', mobile); // Save login state to localStorage
+            currentBalance = user.balance;
+            updateBalance();
+
+            showLoader('Logging in...');
+            setTimeout(() => {
+                hideLoader();
+                showPaymentStatus(true, 'Login successful! Welcome back!');
+            }, 1500);
+        });
+
+        paymentStatusOverlay.addEventListener('click', () => {
+            hidePaymentStatus();
+        });
+
+
+        // Main option buttons
+        sendMoneyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(sendMoneySection);
+        });
+
+        // UPDATED: Redeem Code button now goes to Google Play Redeem Section
+        redeemCodeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(googlePlayRedeemSection);
+        });
+
+        // Changed from scanQrBtn
+        showThunderCodeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(showThunderCodeSection);
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+            if (currentUser) {
+                displayUserMobile.textContent = loggedInUserMobile;
+                displayUserThunderCode.textContent = currentUser.thunderCode;
+            }
+        });
+
+        // Copy Thunder Code
+        copyThunderCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayUserThunderCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('THUNDER Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+
+        // Profile Icon click
+        profileIcon.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(profileSection);
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+            if (currentUser) {
+                profileMobile.textContent = loggedInUserMobile;
+                profileThunderCode.textContent = currentUser.thunderCode;
+            }
+        });
+
+
+        // Send Money Logic
+        confirmSendBtn.addEventListener('click', () => {
+            playSound('click');
+            const amount = parseFloat(sendAmountInput.value);
+            const recipientThunderCode = sendRecipientCodeInput.value.trim();
+            const pin = sendPinInput.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                sendMessage.textContent = 'Please enter a valid amount.';
+                return;
+            }
+            if (!recipientThunderCode) {
+                sendMessage.textContent = 'Please enter a recipient THUNDER Code.';
+                return;
+            }
+            if (!loggedInUserMobile) {
+                sendMessage.textContent = 'Error: No user logged in.';
+                return;
+            }
+
+            let users = getUsers();
+            const senderUser = users[loggedInUserMobile];
+
+            if (senderUser.pin !== pin) {
+                sendMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+            
+            if (amount > senderUser.balance) {
+                sendMessage.textContent = 'Insufficient balance.';
+                return;
+            }
+
+            let recipientMobile = null;
+            for (const mob in users) {
+                if (users[mob].thunderCode.toLowerCase() === recipientThunderCode.toLowerCase()) { // Case-insensitive match
+                    recipientMobile = mob;
+                    break;
+                }
+            }
+
+            if (!recipientMobile) {
+                sendMessage.textContent = 'Recipient THUNDER Code not found.';
+                return;
+            }
+
+            if (recipientMobile === loggedInUserMobile) {
+                sendMessage.textContent = 'Cannot send money to your own account.';
+                return;
+            }
+
+            sendMessage.textContent = '';
+            showLoader('Sending money...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                senderUser.balance = parseFloat((senderUser.balance - amount).toFixed(2));
+                users[recipientMobile].balance = parseFloat((users[recipientMobile].balance + amount).toFixed(2));
+
+                currentBalance = senderUser.balance;
+
+                // Add transaction records with 'from' and 'to' details
+                addTransaction(loggedInUserMobile, 'sent', amount, senderUser.thunderCode, recipientThunderCode); // Sent from me, to recipient
+                addTransaction(recipientMobile, 'received', amount, senderUser.thunderCode, recipientThunderCode); // Received by recipient, from me
+
+                saveUsers(users);
+                updateBalance();
+
+                showPaymentStatus(true, `Successfully sent ₹${amount.toFixed(2)} to ${recipientThunderCode}`);
+                
+                sendAmountInput.value = '';
+                sendRecipientCodeInput.value = '';
+                sendPinInput.value = '';
+            }, 2000);
+        });
+
+
+        // --- Google Play Gift Card Purchase Logic ---
+
+        document.querySelectorAll('.purchase-gift-card-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                playSound('click');
+                selectedGiftCardAmount = parseInt(e.target.dataset.value);
+                googlePlayRedeemMessage.textContent = `You selected a ₹${selectedGiftCardAmount} Google Play Gift Card. Enter PIN to confirm.`;
+                googlePlayPinInputGroup.style.display = 'block';
+                confirmGiftCardPurchaseBtn.style.display = 'block';
+                purchasedGiftCodeBox.style.display = 'none';
+                googlePlayPinInput.value = '';
+                googlePlayPinInput.focus();
+            });
+        });
+
+        confirmGiftCardPurchaseBtn.addEventListener('click', () => {
+            playSound('click');
+            const pin = googlePlayPinInput.value;
+
+            if (selectedGiftCardAmount === 0) {
+                googlePlayRedeemMessage.textContent = 'Please select a gift card amount.';
+                return;
+            }
+
+            let users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (!loggedInUserMobile || currentUser.pin !== pin) {
+                googlePlayRedeemMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+            if (selectedGiftCardAmount > currentBalance) {
+                googlePlayRedeemMessage.textContent = 'Insufficient balance to purchase this gift card.';
+                return;
+            }
+
+            googlePlayRedeemMessage.textContent = '';
+            showLoader(`Purchasing ₹${selectedGiftCardAmount} gift card...`);
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentUser.balance = parseFloat((currentUser.balance - selectedGiftCardAmount).toFixed(2));
+                currentBalance = currentUser.balance;
+                saveUsers(users);
+                updateBalance();
+
+                // Generate a unique Google Play Redeem Code (dummy for now)
+                const giftCode = "DW75SEL4D820873M";
+                
+                let purchasedCards = getPurchasedGiftCards();
+                if (!purchasedCards[loggedInUserMobile]) {
+                    purchasedCards[loggedInUserMobile] = [];
+                }
+                purchasedCards[loggedInUserMobile].push({
+                    amount: selectedGiftCardAmount,
+                    code: giftCode,
+                    date: new Date().toLocaleString()
+                });
+                savePurchasedGiftCards(purchasedCards);
+
+                // Add transaction record for purchased gift card
+                addTransaction(loggedInUserMobile, 'purchased_gift_card', selectedGiftCardAmount, null, null, giftCode);
+
+                displayPurchasedGiftCode.textContent = giftCode;
+                purchasedGiftCodeBox.style.display = 'block';
+                googlePlayPinInputGroup.style.display = 'none'; // Hide PIN input after purchase
+                confirmGiftCardPurchaseBtn.style.display = 'none'; // Hide confirm button
+                
+                showPaymentStatus(true, `₹${selectedGiftCardAmount} Google Play Gift Card purchased successfully!`);
+                googlePlayPinInput.value = ''; // Clear PIN
+                selectedGiftCardAmount = 0; // Reset selected amount
+            }, 2000);
+        });
+
+        copyGiftCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayPurchasedGiftCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('Gift Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+
+        // --- Generate and Redeem Existing Code (Original functionality, still available but not directly from "Gift") ---
+        // These sections are now only accessible via their direct IDs if needed, 
+        // or through a different UI flow if you want to re-introduce them.
+
+        // These buttons are removed from the 'redeemOptions' section, so they won't be triggered directly from there.
+        // If you want to use them, you'd need to add new UI elements for them.
+        /*
+        showGenerateCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(generateCodeSection);
+        });
+
+        showRedeemExistingCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(redeemExistingCodeSection);
+        });
+        */
+
+        // Generate Code Logic
+        generateCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const amount = parseFloat(generateAmountInput.value);
+            const pin = generatePinInput.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                generateMessage.textContent = 'Please enter a valid amount.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+            let users = getUsers();
+            if (!loggedInUserMobile || users[loggedInUserMobile].pin !== pin) {
+                generateMessage.textContent = 'Incorrect PIN.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+            if (amount > currentBalance) {
+                generateMessage.textContent = 'Insufficient balance to generate redeem code.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+
+            generateMessage.textContent = '';
+            showLoader('Generatin g redeem code...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentBalance = parseFloat((currentBalance - amount).toFixed(2));
+                users[loggedInUserMobile].balance = currentBalance;
+                saveUsers(users);
+                updateBalance();
+
+                const redeemCode = `THUNDER-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+                
+                let codes = getRedeemCodes();
+                codes[redeemCode] = {
+                    amount: amount,
+                    generatedBy: users[loggedInUserMobile].thunderCode, // Store Thunder Code of generator
+                    isRedeemed: false,
+                    redeemedBy: null
+                };
+                saveRedeemCodes(codes);
+
+                // Add transaction record for code generation
+                addTransaction(loggedInUserMobile, 'generated_code', amount, users[loggedInUserMobile].thunderCode, null, redeemCode);
+
+                displayGeneratedCode.textContent = redeemCode;
+                generatedCodeBox.style.display = 'block';
+                
+                showPaymentStatus(true, `Redeem code generated for ₹${amount.toFixed(2)}!`);
+                generateAmountInput.value = '';
+                generatePinInput.value = '';
+            }, 2000);
+        });
+
+        // Redeem Existing Code Logic
+        confirmRedeemBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToRedeem = redeemCodeInput.value.trim();
+            const pin = redeemExistingPinInput.value;
+
+            if (!codeToRedeem) {
+                redeemExistingMessage.textContent = 'Please enter a redeem code.';
+                return;
+            }
+
+            let users = getUsers();
+            const redeemerUser = users[loggedInUserMobile];
+
+            if (!loggedInUserMobile || redeemerUser.pin !== pin) {
+                redeemExistingMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+
+            let codes = getRedeemCodes();
+            const codeData = codes[codeToRedeem];
+
+            if (!codeData) {
+                redeemExistingMessage.textContent = 'Invalid or non-existent redeem code.';
+                return;
+            }
+            if (codeData.isRedeemed) {
+                redeemExistingMessage.textContent = `This code has already been redeemed by ${codeData.redeemedBy}.`;
+                return;
+            }
+
+            if (codeData.generatedBy === redeemerUser.thunderCode) {
+                redeemExistingMessage.textContent = 'You cannot redeem a code you generated.';
+                return;
+            }
+
+            redeemExistingMessage.textContent = '';
+            showLoader('Redeeming code...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentBalance = parseFloat((currentBalance + codeData.amount).toFixed(2));
+                redeemerUser.balance = currentBalance;
+
+                codeData.isRedeemed = true;
+                codeData.redeemedBy = redeemerUser.thunderCode; // Store Thunder Code of redeemer
+                saveRedeemCodes(codes);
+
+                // Add transaction record for code redemption
+                addTransaction(loggedInUserMobile, 'redeemed_code', codeData.amount, codeData.generatedBy, redeemerUser.thunderCode, codeToRedeem);
+
+                saveUsers(users);
+                updateBalance();
+
+                showPaymentStatus(true, `Successfully redeemed ₹${codeData.amount.toFixed(2)}!`);
+                redeemCodeInput.value = '';
+                redeemExistingPinInput.value = '';
+            }, 2000);
+        });
+
+
+        // Copy Generated Code to Clipboard
+        copyCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayGeneratedCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('Redeem Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+        // --- Profile and Transaction History Logic ---
+
+        // Show Change PIN section
+        showChangePinBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(changePinSection);
+        });
+
+        // Confirm Change PIN
+        confirmChangePinBtn.addEventListener('click', () => {
+            playSound('click');
+            const currentPin = currentPinInput.value;
+            const newPin = newPinInput.value;
+            const confirmNewPin = confirmNewPinInput.value;
+
+            let users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (!currentUser) {
+                changePinMessage.textContent = 'Error: No user logged in.';
+                return;
+            }
+            if (currentUser.pin !== currentPin) {
+                changePinMessage.textContent = 'Incorrect current PIN.';
+                return;
+            }
+            if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+                changePinMessage.textContent = 'New PIN must be a 4-digit number.';
+                return;
+            }
+            if (newPin !== confirmNewPin) {
+                changePinMessage.textContent = 'New PINs do not match.';
+                return;
+            }
+            if (currentPin === newPin) {
+                changePinMessage.textContent = 'New PIN cannot be the same as current PIN.';
+                return;
+            }
+
+            changePinMessage.textContent = '';
+            showLoader('Changing PIN...');
+
+            setTimeout(() => {
+                hideLoader();
+                currentUser.pin = newPin;
+                saveUsers(users);
+                showPaymentStatus(true, 'PIN changed successfully!');
+                currentPinInput.value = '';
+                newPinInput.value = '';
+                confirmNewPinInput.value = '';
+            }, 1500);
+        });
+
+        // Show Transaction History
+        showTransactionHistoryBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(transactionHistorySection);
+            renderTransactionHistory();
+        });
+
+        function renderTransactionHistory() {
+            transactionList.innerHTML = '';
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (currentUser && currentUser.transactions && currentUser.transactions.length > 0) {
+                noTransactionsMessage.style.display = 'none';
+                currentUser.transactions.forEach(transaction => {
+                    const li = document.createElement('li');
+                    let amountClass = '';
+                    let typeDisplay = '';
+                    let fromToDetails = '';
+                    let amountSign = '';
+
+                    switch (transaction.type) {
+                        case 'sent':
+                            amountClass = 'sent';
+                            typeDisplay = 'Sent Money';
+                            amountSign = '-';
+                            fromToDetails = `To: <span style="font-weight: 600;">${transaction.to}</span>`;
+                            break;
+                        case 'received':
+                            amountClass = 'received';
+                            typeDisplay = 'Received Money';
+                            amountSign = '+';
+                            fromToDetails = `From: <span style="font-weight: 600;">${transaction.from}</span>`;
+                            break;
+                        case 'generated_code':
+                            amountClass = 'generated';
+                            typeDisplay = 'Generated Code';
+                            amountSign = '-';
+                            fromToDetails = `For: <span style="font-weight: 600;">${transaction.from}</span> (Your Code)`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        case 'redeemed_code':
+                            amountClass = 'redeemed';
+                            typeDisplay = 'Redeemed Code';
+                            amountSign = '+';
+                            fromToDetails = `From: <span style="font-weight: 600;">${transaction.from}</span>`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        case 'purchased_gift_card': // NEW transaction type
+                            amountClass = 'purchased';
+                            typeDisplay = 'Purchased Gift Card';
+                            amountSign = '-';
+                            fromToDetails = `Google Play Gift Card`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        default:
+                            amountClass = '';
+                            typeDisplay = 'Transaction';
+                            amountSign = '';
+                            fromToDetails = 'Details N/A';
+                    }
+
+                    li.innerHTML = `
+                        <div class="transaction-info">
+                            <span class="transaction-type ${amountClass}">${typeDisplay}</span>
+                            <span class="transaction-detail-line">${fromToDetails}</span>
+                            <span class="transaction-date">${transaction.date}</span>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">
+                            ${amountSign}₹${transaction.amount.toFixed(2)}
+                        </div>
+                    `;
+                    transactionList.appendChild(li);
+                });
+            } else {
+            showSignupScreen();
+                noTransactionsMessage.style.display = 'block';
+            }
+        }
+
+
+        // Logout Logic
+        logoutBtn.addEventListener('click', () => {
+            playSound('click');
+            loggedInUserMobile = null;
+            currentBalance = 0.00;
+            localStorage.removeItem('lastLoggedInUser'); // Clear login state from localStorage
+            updateBalance();
+            hideAllActionSections();
+            mainWallet.classList.remove('active');
+            mainWallet.style.display = 'none';
+            showLoginScreen();
+            showToast('Logged out successfully!');
+        });
+
+    </script>
+<!-- New Gift Store Sections -->
+<div class="action-section" id="giftStoreSection">
+<h3>🎁 Gift Store</h3>
+<!-- Google Play Cards -->
+<h4 style="margin-top:20px;">Google Play</h4>
+<div class="redeem-card-grid">
+<div class="redeem-card">
+<div class="card-icon">🎮</div>
+<div class="card-price">₹10</div>
+<button class="purchase-gift-card-btn" data-value="10">Withdraw</button>
+</div>
+<div class="redeem-card">
+<div class="card-icon">🎮</div>
+<div class="card-price">₹50</div>
+<button class="purchase-gift-card-btn" data-value="50">Withdraw</button>
+</div>
+</div>
+<!-- Paytm Cards -->
+<h4 style="margin-top:30px;">Paytm</h4>
+<div class="redeem-card-grid">
+<div class="redeem-card">
+<div class="card-icon">💰</div>
+<div class="card-price">₹500</div>
+<button onclick="showComingSoon()">Coming Soon</button>
+</div>
+<div class="redeem-card">
+<div class="card-icon">💰</div>
+<div class="card-price">₹1000</div>
+<button onclick="showComingSoon()">Coming Soon</button>
+</div>
+</div>
+<!-- Amazon Cards -->
+<h4 style="margin-top:30px;">Amazon</h4>
+<div class="redeem-card-grid">
+<div class="redeem-card">
+<div class="card-icon">🛒</div>
+<div class="card-price">₹250</div>
+<button onclick="showComingSoon()">Coming Soon</button>
+</div>
+<div class="redeem-card">
+<div class="card-icon">🛒</div>
+<div class="card-price">₹500</div>
+<button onclick="showComingSoon()">Coming Soon</button>
+</div>
+</div>
+<button class="main-action-button" onclick="hideAllActionSections()">Back to Wallet</button>
+</div>
+<script>
+function showComingSoon() {
+    showToast("Coming Soon 🔒");
+}
+</script>
+<script>
+
+        // DOM Elements
+        const splashScreen = document.getElementById('splashScreen');
+        // Removed patternScreen as it's replaced by login/signup
+
+        // Login/Signup Elements
+        const signupScreen = document.getElementById('signupScreen');
+        const signupMobileInput = document.getElementById('signupMobile');
+        const signupPinInput = document.getElementById('signupPin');
+        const confirmSignupPinInput = document.getElementById('confirmSignupPin');
+        const signupMessage = document.getElementById('signupMessage');
+        const signupButton = document.getElementById('signupButton');
+        const goToLoginLink = document.getElementById('goToLogin');
+
+        const loginScreen = document.getElementById('loginScreen');
+        const loginMobileInput = document.getElementById('loginMobile');
+        const loginPinInput = document.getElementById('loginPin');
+        const loginMessage = document.getElementById('loginMessage');
+        const loginButton = document.getElementById('loginButton');
+        const goToSignupLink = document.getElementById('goToSignup');
+
+        const mainWallet = document.getElementById('mainWallet');
+        const currentBalanceDisplay = document.getElementById('currentBalance');
+        const profileIcon = document.getElementById('profileIcon');
+
+        const sendMoneyBtn = document.getElementById('sendMoneyBtn');
+        const redeemCodeBtn = document.getElementById('redeemCodeBtn');
+        const showThunderCodeBtn = document.getElementById('showThunderCodeBtn'); // Changed from scanQrBtn
+
+        const sendMoneySection = document.getElementById('sendMoneySection');
+        const sendAmountInput = document.getElementById('sendAmount');
+        const sendRecipientCodeInput = document.getElementById('sendRecipientCode');
+        const sendPinInput = document.getElementById('sendPin');
+        const sendMessage = document.getElementById('sendMessage');
+        const confirmSendBtn = document.getElementById('confirmSendBtn');
+
+// Pre-fill and lock "THUNDER@" in the input
+sendRecipientCodeInput.value = "THUNDER@";
+sendRecipientCodeInput.addEventListener("input", () => {
+    if (!sendRecipientCodeInput.value.startsWith("THUNDER@")) {
+        sendRecipientCodeInput.value = "THUNDER@";
+    } else {
+        const suffix = sendRecipientCodeInput.value.slice(8).replace(/[^0-9]/g, "").slice(0, 4);
+        sendRecipientCodeInput.value = "THUNDER@" + suffix;
+    }
+});
+
+
+        // Redeem sections and elements - UPDATED
+        // const redeemOptions = document.getElementById('redeemOptions'); // Removed
+        // const showGenerateCodeBtn = document.getElementById('showGenerateCodeBtn'); // Removed direct access
+        // const showRedeemExistingCodeBtn = document.getElementById('showRedeemExistingCodeBtn'); // Removed direct access
+
+        const googlePlayRedeemSection = document.getElementById('googlePlayRedeemSection'); // New
+        const googlePlayRedeemMessage = document.getElementById('googlePlayRedeemMessage'); // New
+        const googlePlayPinInputGroup = document.getElementById('googlePlayPinInputGroup'); // New
+        const googlePlayPinInput = document.getElementById('googlePlayPin'); // New
+        const confirmGiftCardPurchaseBtn = document.getElementById('confirmGiftCardPurchaseBtn'); // New
+        const purchasedGiftCodeBox = document.getElementById('purchasedGiftCodeBox'); // New
+        const displayPurchasedGiftCode = document.getElementById('displayPurchasedGiftCode'); // New
+        const copyGiftCodeBtn = document.getElementById('copyGiftCodeBtn'); // New
+
+        const generateCodeSection = document.getElementById('generateCodeSection');
+        const generateAmountInput = document.getElementById('generateAmount');
+        const generatePinInput = document.getElementById('generatePin');
+        const generateMessage = document.getElementById('generateMessage');
+        const generateCodeBtn = document.getElementById('generateCodeBtn');
+        const generatedCodeBox = document.getElementById('generatedCodeBox');
+        const displayGeneratedCode = document.getElementById('displayGeneratedCode');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+
+        const redeemExistingCodeSection = document.getElementById('redeemExistingCodeSection');
+        const redeemCodeInput = document.getElementById('redeemCodeInput');
+        const redeemExistingPinInput = document.getElementById('redeemExistingPin');
+        const redeemExistingMessage = document.getElementById('redeemExistingMessage');
+        const confirmRedeemBtn = document.getElementById('confirmRedeemBtn');
+
+        const showThunderCodeSection = document.getElementById('showThunderCodeSection'); // New section
+        const displayUserMobile = document.getElementById('displayUserMobile');
+        const displayUserThunderCode = document.getElementById('displayUserThunderCode');
+        const copyThunderCodeBtn = document.getElementById('copyThunderCodeBtn');
+
+        // Profile Section Elements
+        const profileSection = document.getElementById('profileSection');
+        const profileMobile = document.getElementById('profileMobile');
+        const profileThunderCode = document.getElementById('profileThunderCode');
+        const showChangePinBtn = document.getElementById('showChangePinBtn');
+        const showTransactionHistoryBtn = document.getElementById('showTransactionHistoryBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Change PIN Section Elements
+        const changePinSection = document.getElementById('changePinSection');
+        const currentPinInput = document.getElementById('currentPin');
+        const newPinInput = document.getElementById('newPin');
+        const confirmNewPinInput = document.getElementById('confirmNewPin');
+        const changePinMessage = document.getElementById('changePinMessage');
+        const confirmChangePinBtn = document.getElementById('confirmChangePinBtn');
+
+        // Transaction History Section Elements
+        const transactionHistorySection = document.getElementById('transactionHistorySection');
+        const transactionList = document.getElementById('transactionList');
+        const noTransactionsMessage = document.getElementById('noTransactionsMessage');
+
+
+        const loaderOverlay = document.getElementById('loaderOverlay');
+        const loaderMessage = document.getElementById('loaderMessage');
+        const paymentStatusOverlay = document.getElementById('paymentStatusOverlay');
+        const paymentStatusMessage = document.getElementById('paymentStatusMessage');
+        const successCheckmark = document.querySelector('.checkmark-svg');
+        const crossMark = document.querySelector('.cross-svg');
+        const successCircle = document.querySelector('.success-animation-container .circle-bg');
+        
+        const toastMessageElement = document.getElementById('toastMessage');
+
+        // App State
+        let currentBalance = 0.00;
+        let loggedInUserMobile = null;
+        let selectedGiftCardAmount = 0; // To store the amount chosen for purchase
+
+        // Tone.js for sounds
+        const synth = new Tone.Synth().toDestination();
+
+        // --- Utility Functions ---
+
+        function getUsers() {
+            const users = localStorage.getItem('thunderPayUsers');
+            try {
+                const parsedUsers = users ? JSON.parse(users) : {};
+                for (const mobile in parsedUsers) {
+                    if (!parsedUsers[mobile].transactions) {
+                        parsedUsers[mobile].transactions = [];
+                    }
+                    if (!parsedUsers[mobile].thunderCode) {
+                        parsedUsers[mobile].thunderCode = generateThunderCode(mobile);
+                    }
+                }
+                return parsedUsers;
+            } catch (e) {
+                console.error("Error parsing users from localStorage:", e);
+                return {};
+            }
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('thunderPayUsers', JSON.stringify(users));
+        }
+
+        function getRedeemCodes() {
+            const codes = localStorage.getItem('thunderPayRedeemCodes');
+            try {
+                return codes ? JSON.parse(codes) : {};
+            } catch (e) {
+                console.error("Error parsing redeem codes from localStorage:", e);
+                return {};
+            }
+        }
+
+        function saveRedeemCodes(codes) {
+            localStorage.setItem('thunderPayRedeemCodes', JSON.stringify(codes));
+        }
+
+        // NEW: Function to get purchased gift cards
+        function getPurchasedGiftCards() {
+            const cards = localStorage.getItem('thunderPayPurchasedGiftCards');
+            try {
+                return cards ? JSON.parse(cards) : {};
+            } catch (e) {
+                console.error("Error parsing purchased gift cards from localStorage:", e);
+                return {};
+            }
+        }
+
+        // NEW: Function to save purchased gift cards
+        function savePurchasedGiftCards(cards) {
+            localStorage.setItem('thunderPayPurchasedGiftCards', JSON.stringify(cards));
+        }
+
+
+        function generateThunderCode(mobileNumber) {
+            const last4 = mobileNumber.slice(-4);
+            return `THUNDER@${last4}`;
+        }
+
+        function playSound(type) {
+            if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+                Tone.start();
+            }
+
+            if (type === 'success') {
+                synth.triggerAttackRelease('C5', '8n');
+                setTimeout(() => synth.triggerAttackRelease('E5', '8n'), 100);
+                setTimeout(() => synth.triggerAttackRelease('G5', '8n'), 200);
+            } else if (type === 'failure') {
+                synth.triggerAttackRelease('C4', '8n');
+                setTimeout(() => synth.triggerAttackRelease('A3', '8n'), 100);
+            } else if (type === 'click') {
+                synth.triggerAttackRelease('C4', '16n');
+            }
+        }
+
+        function updateBalance() {
+            currentBalanceDisplay.textContent = `₹${currentBalance.toFixed(2)}`;
+        }
+
+        // Updated Function to add a transaction record with more details
+        function addTransaction(mobile, type, amount, fromInfo = null, toInfo = null, code = null) {
+            const users = getUsers();
+            if (users[mobile]) {
+                const transaction = {
+                    date: new Date().toLocaleString(),
+                    type: type, // 'sent', 'received', 'generated_code', 'redeemed_code', 'purchased_gift_card'
+                    amount: amount,
+                    from: fromInfo, // Who initiated or provided the money/code
+                    to: toInfo,     // Who received the money/code
+                    code: code      // For generated/redeemed/purchased codes
+                };
+                if (!users[mobile].transactions) {
+                    users[mobile].transactions = [];
+                }
+                users[mobile].transactions.unshift(transaction);
+                saveUsers(users);
+            }
+        }
+
+
+        function showLoader(message = "Processing...") {
+            loaderMessage.textContent = message;
+            loaderOverlay.style.display = 'flex';
+            setTimeout(() => loaderOverlay.classList.add('active'), 10);
+        }
+
+        function hideLoader() {
+            loaderOverlay.classList.remove('active');
+            setTimeout(() => {
+                loaderOverlay.style.display = 'none';
+            }, 300);
+        }
+
+        function showPaymentStatus(isSuccess, message) {
+            paymentStatusOverlay.classList.remove('failure');
+            successCheckmark.style.display = 'none';
+            crossMark.style.display = 'none';
+
+            const checkmarkPath = successCheckmark.querySelector('path');
+            const crossLine1 = crossMark.querySelector('.line1');
+            const crossLine2 = crossMark.querySelector('.line2');
+
+            // Re-create paths to re-trigger animations
+            const newCheckmarkPath = checkmarkPath.cloneNode();
+            checkmarkPath.parentNode.replaceChild(newCheckmarkPath, checkmarkPath);
+
+            const newCrossLine1 = crossLine1.cloneNode();
+            crossLine1.parentNode.replaceChild(newCrossLine1, crossLine1);
+            const newCrossLine2 = crossLine2.cloneNode();
+            crossLine2.parentNode.replaceChild(newCrossLine2, crossLine2);
+            
+            successCircle.style.animation = 'none';
+            void successCircle.offsetWidth; // Trigger reflow
+            successCircle.style.animation = null; // Re-enable animation
+
+            if (isSuccess) {
+                successCheckmark.style.display = 'block';
+                playSound('success');
+            } else {
+            showSignupScreen();
+                paymentStatusOverlay.classList.add('failure');
+                crossMark.style.display = 'block';
+                playSound('failure');
+            }
+            paymentStatusMessage.textContent = message;
+            
+            paymentStatusOverlay.style.display = 'flex';
+            setTimeout(() => paymentStatusOverlay.classList.add('active'), 10);
+        }
+
+        function hidePaymentStatus() {
+            paymentStatusOverlay.classList.remove('active');
+            setTimeout(() => {
+                paymentStatusOverlay.style.display = 'none';
+                if (!mainWallet.classList.contains('active')) {
+                    showMainWallet();
+                }
+            }, 300);
+        }
+
+        function showToast(message, duration = 3000) {
+            toastMessageElement.textContent = message;
+            toastMessageElement.classList.add('show');
+            setTimeout(() => {
+                toastMessageElement.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Screen & Section Management ---
+
+        function showSignupScreen() {
+            splashScreen.classList.add('hidden');
+            loginScreen.classList.add('hidden');
+            signupScreen.style.display = 'flex';
+            setTimeout(() => signupScreen.classList.remove('hidden'), 500);
+            signupMobileInput.focus();
+        }
+
+        function showLoginScreen() {
+            splashScreen.classList.add('hidden');
+            signupScreen.classList.add('hidden');
+            loginScreen.style.display = 'flex';
+            setTimeout(() => loginScreen.classList.remove('hidden'), 500);
+            loginMobileInput.focus();
+        }
+
+        function showMainWallet() {
+            signupScreen.classList.add('hidden');
+            loginScreen.classList.add('hidden');
+            hideAllActionSections(); 
+
+            setTimeout(() => {
+                signupScreen.style.display = 'none';
+                loginScreen.style.display = 'none';
+
+                mainWallet.style.display = 'block';
+                setTimeout(() => mainWallet.classList.add('active'), 10);
+            }, 500);
+        }
+
+        function hideAllActionSections() {
+            document.querySelectorAll('.action-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            sendMessage.textContent = '';
+            sendAmountInput.value = '';
+            sendRecipientCodeInput.value = '';
+            sendPinInput.value = '';
+
+            // Reset Google Play Redeem Section
+            googlePlayRedeemMessage.textContent = '';
+            googlePlayPinInput.value = '';
+            googlePlayPinInputGroup.style.display = 'none';
+            confirmGiftCardPurchaseBtn.style.display = 'none';
+            purchasedGiftCodeBox.style.display = 'none';
+            selectedGiftCardAmount = 0;
+
+
+            generateMessage.textContent = '';
+            generateAmountInput.value = '';
+            generatePinInput.value = '';
+            generatedCodeBox.style.display = 'none';
+
+            redeemExistingMessage.textContent = '';
+            redeemCodeInput.value = '';
+            redeemExistingPinInput.value = '';
+
+            changePinMessage.textContent = '';
+            currentPinInput.value = '';
+            newPinInput.value = '';
+            confirmNewPinInput.value = '';
+        }
+
+        function showActionSection(section) {
+            hideAllActionSections();
+            section.style.display = 'block';
+        }
+
+        // --- Event Listeners ---
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const users = getUsers();
+                // Use localStorage for long-term persistence
+                const lastLoggedInMobile = localStorage.getItem('lastLoggedInUser'); 
+                // Auto-login disabled
+    if (false && lastLoggedInMobile && users[lastLoggedInMobile]) {
+                    loggedInUserMobile = lastLoggedInMobile;
+                    currentBalance = users[loggedInUserMobile].balance;
+                    updateBalance();
+                    showMainWallet();
+                } else if (Object.keys(users).length > 0) {
+            showLoginScreen();
+                    showLoginScreen();
+                } else {
+            showSignupScreen();
+                    showSignupScreen();
+                }
+            }, 2500);
+        });
+
+
+        // Login/Signup transitions
+        goToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            signupScreen.classList.add('hidden');
+            setTimeout(() => showLoginScreen(), 500);
+            signupMobileInput.value = '';
+            signupPinInput.value = '';
+            confirmSignupPinInput.value = '';
+            signupMessage.textContent = '';
+        });
+
+        goToSignupLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            loginScreen.classList.add('hidden');
+            setTimeout(() => showSignupScreen(), 500);
+            loginMobileInput.value = '';
+            loginPinInput.value = '';
+            loginMessage.textContent = '';
+        });
+
+
+        // Signup Logic
+        signupButton.addEventListener('click', () => {
+            playSound('click');
+            const mobile = signupMobileInput.value.trim();
+            const pin = signupPinInput.value;
+            const confirmPin = confirmSignupPinInput.value;
+
+            if (!/^\d{10}$/.test(mobile)) {
+                signupMessage.textContent = 'Please enter a valid 10-digit mobile number.';
+                return;
+            }
+            if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                signupMessage.textContent = 'PIN must be a 4-digit number.';
+                return;
+            }
+            if (pin !== confirmPin) {
+                signupMessage.textContent = 'PINs do not match.';
+                return;
+            }
+
+            let users = getUsers();
+            if (users[mobile]) {
+                signupMessage.textContent = 'Account with this mobile number already exists. Please login.';
+                return;
+            }
+
+            const thunderCode = generateThunderCode(mobile);
+            users[mobile] = { pin: pin, balance: 1000.00, thunderCode: thunderCode, transactions: [] };
+            saveUsers(users);
+            loggedInUserMobile = mobile;
+            localStorage.setItem('lastLoggedInUser', mobile); // Save login state to localStorage
+            currentBalance = users[loggedInUserMobile].balance;
+            updateBalance();
+
+            showLoader('Creating account...');
+            setTimeout(() => {
+                hideLoader();
+                showPaymentStatus(true, `Account created successfully! Your THUNDER Code is ${thunderCode}`);
+            }, 1500);
+        });
+
+        // Login Logic
+        loginButton.addEventListener('click', () => {
+            playSound('click');
+            const mobile = loginMobileInput.value.trim();
+            const pin = loginPinInput.value;
+
+            let users = getUsers();
+            const user = users[mobile];
+
+            if (!user) {
+                loginMessage.textContent = 'No account found with this mobile number. Please sign up.';
+                return;
+            }
+
+            if (user.pin !== pin) {
+                loginMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+
+            loggedInUserMobile = mobile;
+            localStorage.setItem('lastLoggedInUser', mobile); // Save login state to localStorage
+            currentBalance = user.balance;
+            updateBalance();
+
+            showLoader('Logging in...');
+            setTimeout(() => {
+                hideLoader();
+                showPaymentStatus(true, 'Login successful! Welcome back!');
+            }, 1500);
+        });
+
+        paymentStatusOverlay.addEventListener('click', () => {
+            hidePaymentStatus();
+        });
+
+
+        // Main option buttons
+        sendMoneyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(sendMoneySection);
+        });
+
+        // UPDATED: Redeem Code button now goes to Google Play Redeem Section
+        redeemCodeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(googlePlayRedeemSection);
+        });
+
+        // Changed from scanQrBtn
+        showThunderCodeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSound('click');
+            showActionSection(showThunderCodeSection);
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+            if (currentUser) {
+                displayUserMobile.textContent = loggedInUserMobile;
+                displayUserThunderCode.textContent = currentUser.thunderCode;
+            }
+        });
+
+        // Copy Thunder Code
+        copyThunderCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayUserThunderCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('THUNDER Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+
+        // Profile Icon click
+        profileIcon.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(profileSection);
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+            if (currentUser) {
+                profileMobile.textContent = loggedInUserMobile;
+                profileThunderCode.textContent = currentUser.thunderCode;
+            }
+        });
+
+
+        // Send Money Logic
+        confirmSendBtn.addEventListener('click', () => {
+            playSound('click');
+            const amount = parseFloat(sendAmountInput.value);
+            const recipientThunderCode = sendRecipientCodeInput.value.trim();
+            const pin = sendPinInput.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                sendMessage.textContent = 'Please enter a valid amount.';
+                return;
+            }
+            if (!recipientThunderCode) {
+                sendMessage.textContent = 'Please enter a recipient THUNDER Code.';
+                return;
+            }
+            if (!loggedInUserMobile) {
+                sendMessage.textContent = 'Error: No user logged in.';
+                return;
+            }
+
+            let users = getUsers();
+            const senderUser = users[loggedInUserMobile];
+
+            if (senderUser.pin !== pin) {
+                sendMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+            
+            if (amount > senderUser.balance) {
+                sendMessage.textContent = 'Insufficient balance.';
+                return;
+            }
+
+            let recipientMobile = null;
+            for (const mob in users) {
+                if (users[mob].thunderCode.toLowerCase() === recipientThunderCode.toLowerCase()) { // Case-insensitive match
+                    recipientMobile = mob;
+                    break;
+                }
+            }
+
+            if (!recipientMobile) {
+                sendMessage.textContent = 'Recipient THUNDER Code not found.';
+                return;
+            }
+
+            if (recipientMobile === loggedInUserMobile) {
+                sendMessage.textContent = 'Cannot send money to your own account.';
+                return;
+            }
+
+            sendMessage.textContent = '';
+            showLoader('Sending money...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                senderUser.balance = parseFloat((senderUser.balance - amount).toFixed(2));
+                users[recipientMobile].balance = parseFloat((users[recipientMobile].balance + amount).toFixed(2));
+
+                currentBalance = senderUser.balance;
+
+                // Add transaction records with 'from' and 'to' details
+                addTransaction(loggedInUserMobile, 'sent', amount, senderUser.thunderCode, recipientThunderCode); // Sent from me, to recipient
+                addTransaction(recipientMobile, 'received', amount, senderUser.thunderCode, recipientThunderCode); // Received by recipient, from me
+
+                saveUsers(users);
+                updateBalance();
+
+                showPaymentStatus(true, `Successfully sent ₹${amount.toFixed(2)} to ${recipientThunderCode}`);
+                
+                sendAmountInput.value = '';
+                sendRecipientCodeInput.value = '';
+                sendPinInput.value = '';
+            }, 2000);
+        });
+
+
+        // --- Google Play Gift Card Purchase Logic ---
+
+        document.querySelectorAll('.purchase-gift-card-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                playSound('click');
+                selectedGiftCardAmount = parseInt(e.target.dataset.value);
+                googlePlayRedeemMessage.textContent = `You selected a ₹${selectedGiftCardAmount} Google Play Gift Card. Enter PIN to confirm.`;
+                googlePlayPinInputGroup.style.display = 'block';
+                confirmGiftCardPurchaseBtn.style.display = 'block';
+                purchasedGiftCodeBox.style.display = 'none';
+                googlePlayPinInput.value = '';
+                googlePlayPinInput.focus();
+            });
+        });
+
+        confirmGiftCardPurchaseBtn.addEventListener('click', () => {
+            playSound('click');
+            const pin = googlePlayPinInput.value;
+
+            if (selectedGiftCardAmount === 0) {
+                googlePlayRedeemMessage.textContent = 'Please select a gift card amount.';
+                return;
+            }
+
+            let users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (!loggedInUserMobile || currentUser.pin !== pin) {
+                googlePlayRedeemMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+            if (selectedGiftCardAmount > currentBalance) {
+                googlePlayRedeemMessage.textContent = 'Insufficient balance to purchase this gift card.';
+                return;
+            }
+
+            googlePlayRedeemMessage.textContent = '';
+            showLoader(`Purchasing ₹${selectedGiftCardAmount} gift card...`);
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentUser.balance = parseFloat((currentUser.balance - selectedGiftCardAmount).toFixed(2));
+                currentBalance = currentUser.balance;
+                saveUsers(users);
+                updateBalance();
+
+                // Generate a unique Google Play Redeem Code (dummy for now)
+                const giftCode = "DW75SEL4D820873M";
+                
+                let purchasedCards = getPurchasedGiftCards();
+                if (!purchasedCards[loggedInUserMobile]) {
+                    purchasedCards[loggedInUserMobile] = [];
+                }
+                purchasedCards[loggedInUserMobile].push({
+                    amount: selectedGiftCardAmount,
+                    code: giftCode,
+                    date: new Date().toLocaleString()
+                });
+                savePurchasedGiftCards(purchasedCards);
+
+                // Add transaction record for purchased gift card
+                addTransaction(loggedInUserMobile, 'purchased_gift_card', selectedGiftCardAmount, null, null, giftCode);
+
+                displayPurchasedGiftCode.textContent = giftCode;
+                purchasedGiftCodeBox.style.display = 'block';
+                googlePlayPinInputGroup.style.display = 'none'; // Hide PIN input after purchase
+                confirmGiftCardPurchaseBtn.style.display = 'none'; // Hide confirm button
+                
+                showPaymentStatus(true, `₹${selectedGiftCardAmount} Google Play Gift Card purchased successfully!`);
+                googlePlayPinInput.value = ''; // Clear PIN
+                selectedGiftCardAmount = 0; // Reset selected amount
+            }, 2000);
+        });
+
+        copyGiftCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayPurchasedGiftCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('Gift Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+
+        // --- Generate and Redeem Existing Code (Original functionality, still available but not directly from "Gift") ---
+        // These sections are now only accessible via their direct IDs if needed, 
+        // or through a different UI flow if you want to re-introduce them.
+
+        // These buttons are removed from the 'redeemOptions' section, so they won't be triggered directly from there.
+        // If you want to use them, you'd need to add new UI elements for them.
+        /*
+        showGenerateCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(generateCodeSection);
+        });
+
+        showRedeemExistingCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(redeemExistingCodeSection);
+        });
+        */
+
+        // Generate Code Logic
+        generateCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const amount = parseFloat(generateAmountInput.value);
+            const pin = generatePinInput.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                generateMessage.textContent = 'Please enter a valid amount.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+            let users = getUsers();
+            if (!loggedInUserMobile || users[loggedInUserMobile].pin !== pin) {
+                generateMessage.textContent = 'Incorrect PIN.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+            if (amount > currentBalance) {
+                generateMessage.textContent = 'Insufficient balance to generate redeem code.';
+                generatedCodeBox.style.display = 'none';
+                return;
+            }
+
+            generateMessage.textContent = '';
+            showLoader('Generatin g redeem code...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentBalance = parseFloat((currentBalance - amount).toFixed(2));
+                users[loggedInUserMobile].balance = currentBalance;
+                saveUsers(users);
+                updateBalance();
+
+                const redeemCode = `THUNDER-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+                
+                let codes = getRedeemCodes();
+                codes[redeemCode] = {
+                    amount: amount,
+                    generatedBy: users[loggedInUserMobile].thunderCode, // Store Thunder Code of generator
+                    isRedeemed: false,
+                    redeemedBy: null
+                };
+                saveRedeemCodes(codes);
+
+                // Add transaction record for code generation
+                addTransaction(loggedInUserMobile, 'generated_code', amount, users[loggedInUserMobile].thunderCode, null, redeemCode);
+
+                displayGeneratedCode.textContent = redeemCode;
+                generatedCodeBox.style.display = 'block';
+                
+                showPaymentStatus(true, `Redeem code generated for ₹${amount.toFixed(2)}!`);
+                generateAmountInput.value = '';
+                generatePinInput.value = '';
+            }, 2000);
+        });
+
+        // Redeem Existing Code Logic
+        confirmRedeemBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToRedeem = redeemCodeInput.value.trim();
+            const pin = redeemExistingPinInput.value;
+
+            if (!codeToRedeem) {
+                redeemExistingMessage.textContent = 'Please enter a redeem code.';
+                return;
+            }
+
+            let users = getUsers();
+            const redeemerUser = users[loggedInUserMobile];
+
+            if (!loggedInUserMobile || redeemerUser.pin !== pin) {
+                redeemExistingMessage.textContent = 'Incorrect PIN.';
+                return;
+            }
+
+            let codes = getRedeemCodes();
+            const codeData = codes[codeToRedeem];
+
+            if (!codeData) {
+                redeemExistingMessage.textContent = 'Invalid or non-existent redeem code.';
+                return;
+            }
+            if (codeData.isRedeemed) {
+                redeemExistingMessage.textContent = `This code has already been redeemed by ${codeData.redeemedBy}.`;
+                return;
+            }
+
+            if (codeData.generatedBy === redeemerUser.thunderCode) {
+                redeemExistingMessage.textContent = 'You cannot redeem a code you generated.';
+                return;
+            }
+
+            redeemExistingMessage.textContent = '';
+            showLoader('Redeeming code...');
+
+            setTimeout(() => {
+                hideLoader();
+                
+                currentBalance = parseFloat((currentBalance + codeData.amount).toFixed(2));
+                redeemerUser.balance = currentBalance;
+
+                codeData.isRedeemed = true;
+                codeData.redeemedBy = redeemerUser.thunderCode; // Store Thunder Code of redeemer
+                saveRedeemCodes(codes);
+
+                // Add transaction record for code redemption
+                addTransaction(loggedInUserMobile, 'redeemed_code', codeData.amount, codeData.generatedBy, redeemerUser.thunderCode, codeToRedeem);
+
+                saveUsers(users);
+                updateBalance();
+
+                showPaymentStatus(true, `Successfully redeemed ₹${codeData.amount.toFixed(2)}!`);
+                redeemCodeInput.value = '';
+                redeemExistingPinInput.value = '';
+            }, 2000);
+        });
+
+
+        // Copy Generated Code to Clipboard
+        copyCodeBtn.addEventListener('click', () => {
+            playSound('click');
+            const codeToCopy = displayGeneratedCode.textContent;
+            navigator.clipboard.writeText(codeToCopy).then(() => {
+                showToast('Redeem Code copied!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy code.');
+            });
+        });
+
+        // --- Profile and Transaction History Logic ---
+
+        // Show Change PIN section
+        showChangePinBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(changePinSection);
+        });
+
+        // Confirm Change PIN
+        confirmChangePinBtn.addEventListener('click', () => {
+            playSound('click');
+            const currentPin = currentPinInput.value;
+            const newPin = newPinInput.value;
+            const confirmNewPin = confirmNewPinInput.value;
+
+            let users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (!currentUser) {
+                changePinMessage.textContent = 'Error: No user logged in.';
+                return;
+            }
+            if (currentUser.pin !== currentPin) {
+                changePinMessage.textContent = 'Incorrect current PIN.';
+                return;
+            }
+            if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+                changePinMessage.textContent = 'New PIN must be a 4-digit number.';
+                return;
+            }
+            if (newPin !== confirmNewPin) {
+                changePinMessage.textContent = 'New PINs do not match.';
+                return;
+            }
+            if (currentPin === newPin) {
+                changePinMessage.textContent = 'New PIN cannot be the same as current PIN.';
+                return;
+            }
+
+            changePinMessage.textContent = '';
+            showLoader('Changing PIN...');
+
+            setTimeout(() => {
+                hideLoader();
+                currentUser.pin = newPin;
+                saveUsers(users);
+                showPaymentStatus(true, 'PIN changed successfully!');
+                currentPinInput.value = '';
+                newPinInput.value = '';
+                confirmNewPinInput.value = '';
+            }, 1500);
+        });
+
+        // Show Transaction History
+        showTransactionHistoryBtn.addEventListener('click', () => {
+            playSound('click');
+            showActionSection(transactionHistorySection);
+            renderTransactionHistory();
+        });
+
+        function renderTransactionHistory() {
+            transactionList.innerHTML = '';
+            const users = getUsers();
+            const currentUser = users[loggedInUserMobile];
+
+            if (currentUser && currentUser.transactions && currentUser.transactions.length > 0) {
+                noTransactionsMessage.style.display = 'none';
+                currentUser.transactions.forEach(transaction => {
+                    const li = document.createElement('li');
+                    let amountClass = '';
+                    let typeDisplay = '';
+                    let fromToDetails = '';
+                    let amountSign = '';
+
+                    switch (transaction.type) {
+                        case 'sent':
+                            amountClass = 'sent';
+                            typeDisplay = 'Sent Money';
+                            amountSign = '-';
+                            fromToDetails = `To: <span style="font-weight: 600;">${transaction.to}</span>`;
+                            break;
+                        case 'received':
+                            amountClass = 'received';
+                            typeDisplay = 'Received Money';
+                            amountSign = '+';
+                            fromToDetails = `From: <span style="font-weight: 600;">${transaction.from}</span>`;
+                            break;
+                        case 'generated_code':
+                            amountClass = 'generated';
+                            typeDisplay = 'Generated Code';
+                            amountSign = '-';
+                            fromToDetails = `For: <span style="font-weight: 600;">${transaction.from}</span> (Your Code)`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        case 'redeemed_code':
+                            amountClass = 'redeemed';
+                            typeDisplay = 'Redeemed Code';
+                            amountSign = '+';
+                            fromToDetails = `From: <span style="font-weight: 600;">${transaction.from}</span>`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        case 'purchased_gift_card': // NEW transaction type
+                            amountClass = 'purchased';
+                            typeDisplay = 'Purchased Gift Card';
+                            amountSign = '-';
+                            fromToDetails = `Google Play Gift Card`;
+                            if (transaction.code) {
+                                fromToDetails += `<br>Code: ${transaction.code}`;
+                            }
+                            break;
+                        default:
+                            amountClass = '';
+                            typeDisplay = 'Transaction';
+                            amountSign = '';
+                            fromToDetails = 'Details N/A';
+                    }
+
+                    li.innerHTML = `
+                        <div class="transaction-info">
+                            <span class="transaction-type ${amountClass}">${typeDisplay}</span>
+                            <span class="transaction-detail-line">${fromToDetails}</span>
+                            <span class="transaction-date">${transaction.date}</span>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">
+                            ${amountSign}₹${transaction.amount.toFixed(2)}
+                        </div>
+                    `;
+                    transactionList.appendChild(li);
+                });
+            } else {
+            showSignupScreen();
+                noTransactionsMessage.style.display = 'block';
+            }
+        }
+
+
+        // Logout Logic
+        logoutBtn.addEventListener('click', () => {
+            playSound('click');
+            loggedInUserMobile = null;
+            currentBalance = 0.00;
+            localStorage.removeItem('lastLoggedInUser'); // Clear login state from localStorage
+            updateBalance();
+            hideAllActionSections();
+            mainWallet.classList.remove('active');
+            mainWallet.style.display = 'none';
+            showLoginScreen();
+            showToast('Logged out successfully!');
+        });
+
+    
+
+
+function showComingSoon() {
+    showToast("Coming Soon 🔒");
+}
+
+</script>
+</body>
+</html>
